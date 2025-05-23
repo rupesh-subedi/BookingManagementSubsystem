@@ -39,4 +39,9 @@ public class Booking {
                 ", 📌 Status='" + status + '\'' +
                 '}';
     }
+
+	public String getBookingId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
