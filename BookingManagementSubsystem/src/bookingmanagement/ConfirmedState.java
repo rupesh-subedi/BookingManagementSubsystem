@@ -1,5 +1,11 @@
 package bookingmanagement;
 
 public class ConfirmedState implements BookingState {
-    public String getStatus() { return "Confirmed"; }
+	public void handle(Booking booking) {
+        booking.setDraft(false);
+    }
+
+    public String getStatus() {
+        return "Confirmed";
+    }
 }

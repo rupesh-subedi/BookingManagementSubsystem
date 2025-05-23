@@ -5,6 +5,7 @@ import java.util.*;
 public class BookingManager {
     private Map<String, Booking> bookings = new HashMap<>();
     private FlightManager flightManager;
+    private static BookingManager instance;
 
     public BookingManager(FlightManager flightManager) {
         this.flightManager = flightManager;
@@ -51,5 +52,12 @@ public class BookingManager {
 
     public void clearBookings() {
         bookings.clear();
+    }
+
+    public static BookingManager getInstance(FlightManager flightManager) {
+        if (instance == null) {
+            instance = new BookingManager(flightManager); // Inject dependency ONCE
+        }
+        return instance;
     }
 }

@@ -4,8 +4,8 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        FlightManager flightManager = new FlightManager();
-        BookingManager bookingManager = new BookingManager(flightManager);
+        FlightManager flightManager =  FlightManager.getInstance();
+        BookingManager bookingManager =  BookingManager.getInstance(flightManager);
         FlightConsoleUI flightUI = new FlightConsoleUI(flightManager);
         BookingConsoleUI bookingUI = new BookingConsoleUI(bookingManager);
 

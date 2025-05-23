@@ -1,5 +1,11 @@
 package bookingmanagement;
 
 public class DraftState implements BookingState {
-    public String getStatus() { return "Draft"; }
+	public void handle(Booking booking) {
+        booking.setDraft(true);
+    }
+
+    public String getStatus() {
+        return "Draft";
+    }
 }
