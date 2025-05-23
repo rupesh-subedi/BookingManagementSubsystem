@@ -5,7 +5,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.*;
-
+//this is example of testing
 public class BookingManagerTest {
 
     private BookingManager bookingManager;

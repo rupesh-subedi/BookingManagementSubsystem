@@ -1,124 +1,55 @@
 package bookingmanagement;
 
-
 import java.util.*;
 
-public class BookingManager extends AbstractBookingHandler {
-    private static final String[] DESTINATIONS = {"USA", "Canada", "Nepal", "Australia", "UK"};
-    private final Random random = new Random();
+public class BookingManager {
+    private Map<String, Booking> bookings = new HashMap<>();
+    private FlightManager flightManager;
 
-    public Booking createBooking(String customerName, String destination, boolean isDraft, boolean promptForPayment) {
-        if (!Arrays.asList(DESTINATIONS).contains(destination)) {
-            return null;
-        }
-        Booking booking = new Booking(customerName, destination, isDraft);
-        if (!isDraft && promptForPayment) {
-            booking.setPaid(true);
-            booking.setStatus("✅ Confirmed");
-        }
-        booking.setSeatNumber(assignSeat());
-        bookings.add(booking);
-        bookingHistory.add(booking);
-        return booking;
+    public BookingManager(FlightManager flightManager) {
+        this.flightManager = flightManager;
     }
 
-    public List<Booking> viewBookings() {
-        return new ArrayList<>(bookings);
+    public boolean createBooking(String customerName, String flightNumber, boolean isPaid, boolean isDraft) {
+        if (customerName == null || customerName.isEmpty() || flightNumber == null || bookings.containsKey(customerName)) return false;
+        Flight flight = flightManager.getFlight(flightNumber);
+        if (flight == null || !flight.hasAvailableSeats()) return false;
+        String destination = flight.getDestination();
+        if (!isDraft) flight.bookSeat();  // Only count seat if confirmed
+        bookings.put(customerName, new Booking(customerName, flightNumber, destination, isPaid, isDraft));
+        return true;
     }
 
-    public boolean updateBooking(String customerName, String newDestination, boolean promptForPayment) {
-        for (Booking booking : bookings) {
-            if (booking.getCustomerName().equalsIgnoreCase(customerName)) {
-                booking.setDestination(newDestination);
-                if (!booking.isDraft() && promptForPayment) {
-                    booking.setPaid(true);
-                    booking.setStatus("✅ Confirmed");
-                }
-                return true;
-            }
-        }
-        return false;
+    public Booking viewBooking(String customerName) {
+        return bookings.get(customerName);
     }
 
     public boolean cancelBooking(String customerName) {
-        Iterator<Booking> iterator = bookings.iterator();
-        while (iterator.hasNext()) {
-            Booking booking = iterator.next();
-            if (booking.getCustomerName().equalsIgnoreCase(customerName)) {
-                iterator.remove();
-                booking.setStatus("❌ Cancelled");
-                bookingHistory.add(booking);
-                return true;
-            }
+        Booking booking = bookings.get(customerName);
+        if (booking == null) return false;
+        if (!booking.isDraft()) {
+            Flight flight = flightManager.getFlight(booking.getFlightNumber());
+            if (flight != null) flight.cancelSeat();
         }
-        return false;
+        booking.cancelBooking();
+        return true;
     }
 
-    public Booking searchBooking(String customerName) {
-        for (Booking booking : bookings) {
-            if (booking.getCustomerName().equalsIgnoreCase(customerName)) {
-                return booking;
-            }
-        }
-        return null;
+    public boolean confirmDraft(String customerName) {
+        Booking booking = bookings.get(customerName);
+        if (booking == null || !booking.isDraft()) return false;
+        Flight flight = flightManager.getFlight(booking.getFlightNumber());
+        if (flight == null || !flight.hasAvailableSeats()) return false;
+        flight.bookSeat();
+        booking.confirmBooking();
+        return true;
     }
 
-    public String checkStatus(String customerName) {
-        for (Booking booking : bookings) {
-            if (booking.getCustomerName().equalsIgnoreCase(customerName)) {
-                return booking.getStatus();
-            }
-        }
-        return "❓ Not Found";
+    public List<Booking> getAllBookings() {
+        return new ArrayList<>(bookings.values());
     }
 
-    public List<Booking> viewBookingHistory() {
-        return new ArrayList<>(bookingHistory);
+    public void clearBookings() {
+        bookings.clear();
     }
-
-    public static List<String> getAvailableDestinations() {
-        return Arrays.asList(DESTINATIONS);
-    }
-
-    private String assignSeat() {
-        int row = random.nextInt(30) + 1;
-        char seat = (char) ('A' + random.nextInt(6));
-        return row + String.valueOf(seat);
-    }
-
-	@Override
-	public void createBooking() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void viewBooking() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void updateBooking() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void cancelBooking() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void searchBooking() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void checkStatus() {
-		// TODO Auto-generated method stub
-		
-	}
 }
